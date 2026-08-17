@@ -6,11 +6,16 @@ const router = express.Router();
 // Bug 3: Projects were duplicated because of an incorrect JOIN with the project_notes table.
 // How to fixed: Remove the unnecessary JOIN and return only project and client data.
 
+// Feature: Search projects by client name.
+// Added optional client query parameter and database filtering.
+
 // GET /api/projects
 // Returns all projects with their client name.
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query(`
+    const { client } = req.query;
+
+    let query = `
       SELECT
         p.id,
         p.name,
@@ -19,8 +24,20 @@ router.get("/", async (req, res) => {
         c.name AS client_name
       FROM projects p
       JOIN clients c ON c.id = p.client_id
-      ORDER BY p.id ASC
-    `);
+    `;
+
+    const params = [];
+
+    // Apply client name filter when a search term is provided
+    if (client) {
+      query += ` WHERE c.name ILIKE $1`;
+      params.push(`%${client}%`);
+    }
+
+    query += ` ORDER BY p.id ASC`;
+
+    const result = await pool.query(query, params);
+
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -55,7 +72,7 @@ router.post("/", async (req, res) => {
       `INSERT INTO projects (name, client_id, status)
        VALUES ($1, $2, $3)
        RETURNING *`,
-      [name, client_id, status || "planning"]
+      [name, client_id, status || "planning"],
     );
 
     res.status(201).json(result.rows[0]);
@@ -74,7 +91,7 @@ router.patch("/:id/status", async (req, res) => {
 
     const result = await pool.query(
       `UPDATE projects SET status = $1 WHERE id = $2 RETURNING *`,
-      [status, id]
+      [status, id],
     );
 
     if (result.rows.length === 0) {
