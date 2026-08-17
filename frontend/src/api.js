@@ -17,8 +17,13 @@ async function request(path, options = {}) {
   return data;
 }
 
-export function getProjects() {
-  return request("/api/projects");
+// Feature: Support searching projects by client name.
+export function getProjects(clientName = "") {
+  const query = clientName
+    ? `?client=${encodeURIComponent(clientName)}`
+    : "";
+
+  return request(`/api/projects${query}`);
 }
 
 export function getClients() {

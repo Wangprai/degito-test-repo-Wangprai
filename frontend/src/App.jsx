@@ -7,11 +7,17 @@ export default function App() {
   const [projects, setProjects] = useState([]);
   const [clients, setClients] = useState([]);
   const [newProject, setNewProject] = useState({ name: "", client_id: "" });
+  // Feature: Search projects by client name.
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchProjects();
     fetchClients();
   }, []);
+
+  useEffect(() => {
+    getProjects(search).then(setProjects);
+  }, [search]);
 
   function fetchProjects() {
     getProjects().then(setProjects);
@@ -85,6 +91,13 @@ export default function App() {
           </select>
           <button type="submit">Add</button>
         </form>
+        {/* Feature: Search projects by client name Input. */}
+        <input
+          type="text"
+          placeholder="Search by client name"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </section>
 
       <section className="project-list">
