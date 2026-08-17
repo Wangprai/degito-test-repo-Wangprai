@@ -21,7 +21,7 @@ export default function App() {
     getClients().then(setClients);
   }
 
-  // Bug 1: Status change not updated. 
+  // Bug 1: Status change not updated.
   // How to fixed: using map() for create a new array before update project state.
   function handleStatusChange(projectId, newStatus) {
     updateStatus(projectId, newStatus).then(() => {
@@ -35,15 +35,21 @@ export default function App() {
     });
   }
 
+  // Bug 4: API errors not show to users.
+  // How to fix: toast notifications to display API error messages.
   function handleCreate(e) {
     e.preventDefault();
     createProject({
       name: newProject.name,
       client_id: Number(newProject.client_id),
-    }).then(() => {
-      setNewProject({ name: "", client_id: "" });
-      fetchProjects();
-    });
+    })
+      .then(() => {
+        setNewProject({ name: "", client_id: "" });
+        fetchProjects();
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
   }
 
   return (

@@ -1,11 +1,20 @@
 const API_URL = "http://localhost:4000";
 
+// Bug 4: API errors were handled silently.
+// How to fix: Added error handling.
 async function request(path, options = {}) {
   const res = await fetch(`${API_URL}${path}`, {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
-  return res.json();
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Request failed");
+  }
+
+  return data;
 }
 
 export function getProjects() {
