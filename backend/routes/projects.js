@@ -3,6 +3,9 @@ const pool = require("../db");
 
 const router = express.Router();
 
+// Bug 3: Projects were duplicated because of an incorrect JOIN with the project_notes table.
+// How to fixed: Remove the unnecessary JOIN and return only project and client data.
+
 // GET /api/projects
 // Returns all projects with their client name.
 router.get("/", async (req, res) => {
@@ -13,11 +16,9 @@ router.get("/", async (req, res) => {
         p.name,
         p.status,
         p.client_id,
-        c.name AS client_name,
-        n.id AS note_id
+        c.name AS client_name
       FROM projects p
       JOIN clients c ON c.id = p.client_id
-      LEFT JOIN project_notes n ON n.project_id = p.id
       ORDER BY p.id ASC
     `);
     res.json(result.rows);
