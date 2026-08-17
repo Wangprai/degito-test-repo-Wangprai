@@ -27,11 +27,28 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Bug 2: Create project endpoint didn't validate request data.
+// How to fixed: Add input validation before inserting data into the database.
+
 // POST /api/projects
 // Creates a new project.
 router.post("/", async (req, res) => {
   try {
     const { name, client_id, status } = req.body;
+
+    // validate project name
+    if (!name?.trim()) {
+      return res.status(400).json({
+        error: "Project name is required",
+      });
+    }
+
+    // validate client ID
+    if (!client_id || Number(client_id) <= 0) {
+      return res.status(400).json({
+        error: "Valid client_id is required",
+      });
+    }
 
     const result = await pool.query(
       `INSERT INTO projects (name, client_id, status)
