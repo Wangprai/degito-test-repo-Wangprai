@@ -97,6 +97,7 @@ export default function App() {
           placeholder="Search by client name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          style={{ marginTop: "16px" }}
         />
       </section>
 
